@@ -1,0 +1,3 @@
+/home/harry/atm/c++/final/tuitalk/cmake-build-debug/CMakeFiles/tuitalk.dir
+/home/harry/atm/c++/final/tuitalk/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/harry/atm/c++/final/tuitalk/cmake-build-debug/CMakeFiles/rebuild_cache.dir
