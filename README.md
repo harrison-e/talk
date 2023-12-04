@@ -1,12 +1,10 @@
-# TUI Talk
+# Talk
 
 *Used as a final project for CS3520 @ NU*
 
-TUI Talk is a peer-to-peer messaging client with a TUI.
+Talk is a peer-to-peer messaging client with a TUI.
 
 For network communication, this program implements Tox, a cryptographic network library. For this program to work, [install Tox, and all of its dependencies](https://github.com/TokTok/c-toxcore/blob/master/INSTALL.md#requirements) (most notably, [sodium](https://doc.libsodium.org/installation)).
-
-For user interface, this program WILL implement FTXUI, a C++ TUI library.
 
 # How to Build
 
