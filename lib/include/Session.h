@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <iostream>
 #include <memory>
+#include <thread>
+#include <future>
 
 #include "Friend.h"
 #include "Utility.h"
@@ -38,6 +40,9 @@ struct DHT_node bootstrap_nodes[] = {
 class Session {
 protected:  // data
   Tox* tox; // Tox instance
+
+  // friend list (friend num is idx)
+  // todo del_friend -> .at(n) = nullptr
   vector<unique_ptr<Friend>> friend_list;
 
 protected: // methods

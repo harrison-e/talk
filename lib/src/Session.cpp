@@ -55,6 +55,9 @@ void Session::print_pubkey() {
 ////// RUN
 void Session::run() {
   assert(tox != nullptr);
+  /* todo: take commands using <future>
+   * todo: see final/testing/async.cpp
+   */
   while (true) {
     usleep(1000 * tox_iteration_interval(tox));
     tox_iterate(tox, NULL);
