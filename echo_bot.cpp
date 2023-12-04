@@ -73,14 +73,10 @@ char nibble2hex(uint8_t byte) {
 
 std::string bin2hex(uint8_t *bytes, uint8_t length) {
   std::string out {};
-  std::string dout {};
   for (int n = length - 1; n >= 0; n--) {
     uint8_t byte = bytes[n];
     uint8_t lo = byte % 16;
     uint8_t hi = byte / 16;
-    dout += "b" + std::to_string(byte) + '\n';
-    dout += "l" + std::to_string(lo) + '=' + nibble2hex(lo) + '\n';
-    dout += "h" + std::to_string(hi) + '=' + nibble2hex(hi) + '\n';
     out += nibble2hex(lo);
     out += nibble2hex(hi);
   }
@@ -102,7 +98,6 @@ int main() {
   // output our key for msging
   uint8_t address[TOX_ADDRESS_SIZE];
   tox_self_get_address(tox, address);
-  //std::cout << std::to_string(address[4]);
   std::cout << bin2hex(address, TOX_ADDRESS_SIZE);
 
   while (true) {

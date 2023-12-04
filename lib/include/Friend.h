@@ -19,12 +19,12 @@ protected:
   vector<string> chat_history;
 
 public:
-  string getName() const;
-  uint32_t getNumber() const;
-  string getStatus() const;
+  string getName() const { return name; }
+  uint32_t getNumber() const { return number; }
+  string getStatus() const { return status; }
   void getPubKey(uint8_t* buf) const;
-  TOX_CONNECTION getConnection() const;
-  const vector<string> getHistory() const;
+  TOX_CONNECTION getConnection() const { return connection; }
+  const vector<string>* getHistory() const { return &chat_history; }
 
 };
 
