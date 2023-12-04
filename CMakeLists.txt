@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
-project(talk)
-
 set(CMAKE_CXX_STANDARD 17)
+
+project(talk)
 
 # make sure we have libpthread
 find_package(Threads REQUIRED)
