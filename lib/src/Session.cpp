@@ -35,7 +35,6 @@ void Session::bootstrap() {
   }
 }
 
-
 Session::Session() {
   std::cout << "welcome to talk\n";
   setup();
@@ -53,7 +52,7 @@ void Session::print_pubkey() {
   delete[] hex;
 }
 
-
+////// RUN
 void Session::run() {
   assert(tox != nullptr);
   while (true) {

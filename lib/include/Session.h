@@ -1,10 +1,16 @@
 #ifndef TUITALK_SESSION_H
 #define TUITALK_SESSION_H
-#include "Friend.h"
-#include "Utility.h"
+
 #include <unistd.h>
 #include <algorithm>
 #include <iostream>
+#include <memory>
+
+#include "Friend.h"
+#include "Utility.h"
+
+using std::unique_ptr;
+
 
 ////// connection data
 const uint16_t PORT_RNG_ST = 33445;
@@ -32,7 +38,7 @@ struct DHT_node bootstrap_nodes[] = {
 class Session {
 protected:  // data
   Tox* tox; // Tox instance
-  vector<Friend> friend_list;
+  vector<unique_ptr<Friend>> friend_list;
 
 protected: // methods
   ////// setup
