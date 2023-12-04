@@ -100,10 +100,10 @@ int main() {
   tox_callback_friend_message(tox, handle_friend_message);
 
   // output our key for msging
-  uint8_t address[80];
+  uint8_t address[TOX_ADDRESS_SIZE];
   tox_self_get_address(tox, address);
   //std::cout << std::to_string(address[4]);
-  std::cout << bin2hex(address, 80);
+  std::cout << bin2hex(address, TOX_ADDRESS_SIZE);
 
   while (true) {
     usleep(10000 * tox_iteration_interval(tox));
