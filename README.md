@@ -2,9 +2,9 @@
 
 *Used as a final project for CS3520 @ NU*
 
-Talk is a peer-to-peer messaging client with a TUI.
+Talk is a peer-to-peer messaging client for [Tox](https://github.com/TokTok/c-toxcore/).
 
-For network communication, this program implements Tox, a cryptographic network library. For this program to work, [install Tox, and all of its dependencies](https://github.com/TokTok/c-toxcore/blob/master/INSTALL.md#requirements) (most notably, [sodium](https://doc.libsodium.org/installation)).
+For this program to work, [install Tox, and all of its dependencies](https://github.com/TokTok/c-toxcore/blob/master/INSTALL.md#requirements) (most notably, [sodium](https://doc.libsodium.org/installation)).
 
 # How to Build
 
