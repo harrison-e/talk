@@ -8,6 +8,8 @@ extern "C" {
 #include "tox/tox.h"
 }
 
+#include "Utility.h"
+
 static void handle_friend_request(
         Tox *tox, const uint8_t *public_key, const uint8_t *message, size_t length,
         void *user_data) {
@@ -32,58 +34,6 @@ static void handle_friend_message(
   }
 }
 
-char nibble2hex(uint8_t byte) {
-  switch (byte) {
-    case 0b0000:
-      return '0';
-    case 0b0001:
-      return '1';
-    case 0b0010:
-      return '2';
-    case 0b0011:
-      return '3';
-    case 0b0100:
-      return '4';
-    case 0b0101:
-      return '5';
-    case 0b0110:
-      return '6';
-    case 0b0111:
-      return '7';
-    case 0b1000:
-      return '8';
-    case 0b1001:
-      return '9';
-    case 0b1010:
-      return 'a';
-    case 0b1011:
-      return 'b';
-    case 0b1100:
-      return 'c';
-    case 0b1101:
-      return 'd';
-    case 0b1110:
-      return 'e';
-    case 0b1111:
-      return 'f';
-    default:
-      return 'x';
-  }
-}
-
-std::string bin2hex(uint8_t *bytes, uint8_t length) {
-  std::string out {};
-  for (int n = length - 1; n >= 0; n--) {
-    uint8_t byte = bytes[n];
-    uint8_t lo = byte % 16;
-    uint8_t hi = byte / 16;
-    out += nibble2hex(lo);
-    out += nibble2hex(hi);
-  }
-  std::reverse(out.begin(), out.end());
-  return out + '\n';
-}
-
 int main() {
   TOX_ERR_NEW err_new;
   Tox *tox = tox_new(NULL, &err_new);
@@ -98,7 +48,9 @@ int main() {
   // output our key for msging
   uint8_t address[TOX_ADDRESS_SIZE];
   tox_self_get_address(tox, address);
-  std::cout << bin2hex(address, TOX_ADDRESS_SIZE);
+  char* hex = bin2hex(address, TOX_ADDRESS_SIZE);
+  std::cout << string(hex)  << '\n';
+  delete[] hex;
 
   while (true) {
     usleep(10000 * tox_iteration_interval(tox));
