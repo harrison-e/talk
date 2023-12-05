@@ -13,6 +13,8 @@ add_library(toxchat
         lib/include/Session.h
         lib/src/Session.cpp
         lib/include/Utility.h
+        lib/include/Request.h
+        lib/src/Request.cpp
 )
 target_include_directories(toxchat PRIVATE lib/include)
 
