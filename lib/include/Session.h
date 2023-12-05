@@ -10,15 +10,14 @@
 
 #include "Friend.h"
 #include "Request.h"
-#include "Utility.h"
 
-using std::shared_ptr, std::make_shared;
+using std::cout, std::shared_ptr, std::make_shared;
 
-/**************************
- * CONSTS, STRUCTS, ETC.
- **************************/
-const uint16_t PORT_RNG_ST = 33445;
-const uint16_t PORT_RNG_ND = 34445;
+/*************************
+ * CONSTS, STRUCTS, ETC. *
+ *************************/
+static const uint16_t PORT_RNG_ST = 33445;
+static const uint16_t PORT_RNG_ND = 34445;
 
 struct DHT_node {
   const char *ip;
@@ -26,7 +25,7 @@ struct DHT_node {
   const char key_hex[TOX_PUBLIC_KEY_SIZE*2 + 1];
 };
 
-struct DHT_node bootstrap_nodes[] = {
+static struct DHT_node bootstrap_nodes[] = {
         {"node.tox.biribiri.org",      33445,
          "F404ABAA1C99A9D37D61AB54898F56793E1DEF8BD46B1038B9D822E8460FAB67"},
         {"128.199.199.197",            33445,
@@ -41,36 +40,38 @@ enum CONVO_TYPE {
   CONVO_NULL = UINT32_MAX,
 };
 
-const string FMT_FR = "\033[1;37;40m";
-const string FMT_ME = "\033[1;37;44m";
-const string FMT_ND = "\033[0m";
-
 /*
  * A Session encompasses the client's functionality
  */
 class Session {
 protected:  // data
   Tox* tox; // Tox instance
+
   // friend list (friend num is idx)
   // todo del_friend -> .at(n) = nullptr
   static vector<shared_ptr<Friend>> friends;
+
   // request list
   static vector<shared_ptr<Request>> requests;
 
-  Friend me; // todo
-  CONVO_TYPE conversation;
+  static Friend me; // todo
+  static CONVO_TYPE conversation;
+  static uint32_t talkingTo;
 
-protected: // methods
+  // methods
   ////// setup
   void setup();
   void init_tox();
   void bootstrap();
 
   ////// utility
-  void print_pubkey();
+  static shared_ptr<Friend> friend_at(uint32_t num) { return num < friends.size() ? friends.at(num) : nullptr; }
+  static bool talking_to_friend(uint32_t friend_num) { return conversation == CONVO_FRIEND && talkingTo == friend_num; }
 
   ////// commands
-  void add_friend();
+  void cmd_add_friend();
+  void cmd_send_msg();
+  void cmd_talk_to();
 
   ////// callbacks for tox
   // me

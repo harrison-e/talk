@@ -1,10 +1,10 @@
 #ifndef TALK_REQUEST_H
 #define TALK_REQUEST_H
 
-extern "C" {
-#include "tox/tox.h"
-#include "sodium.h"
-}
+#include <string>
+#include "Utility.h"
+
+using std::string;
 
 class Request {
 protected:
