@@ -2,10 +2,7 @@
 #define TALK_UTILITY_H
 #include <string>
 #include <cstdio>
-#include <iostream>
-#include <mutex>
-using std::cout, std::endl, std::string, std::sscanf,
-  std::mutex, std::lock_guard;
+using std::string, std::sscanf;
 
 extern "C" {
 #include "tox/tox.h"
@@ -36,7 +33,32 @@ char* bin2hex(const uint8_t *bin, size_t length) {
   return hex;
 }
 
+// sets num to result
+bool str2uint(char *str, uint32_t *num) {
+  char *str_end;
+  long l = strtol(str,&str_end,10);
+  if (str_end == str || l < 0 )
+    return false;
+  *num = (uint32_t)l;
+  return true;
+}
+
+string connection2str(TOX_CONNECTION conn) {
+  switch (conn) {
+    case TOX_CONNECTION_NONE:
+      return "offline";
+    case TOX_CONNECTION_TCP:
+      return "online (TCP)";
+    case TOX_CONNECTION_UDP:
+      return "online (UDP)";
+    default:
+      return "unknown";
+  }
+}
+
+
 ////// formatted printing
+/**
 static mutex print_mutex;
 const string FMT_END = "\033[0m";
 
@@ -63,12 +85,12 @@ void error_print(string error) {
 
 const string FMT_FRIEND_NAME = "\033[1;37;40m";
 string friend_name_fmt(string name) {
-  return FMT_FRIEND_NAME + name + FMT_END;
+  return FMT_FRIEND_NAME + ' ' + name + ' ' + FMT_END;
 }
 
 const string FMT_MY_NAME = "\033[1;37;44m";
 string self_name_fmt(string name) {
-  return FMT_MY_NAME + name + FMT_END;
+  return FMT_MY_NAME + ' ' + name + ' ' + FMT_END;
 }
 
 void message_fmt(string name, string message) {
@@ -101,12 +123,14 @@ void print_my_pubkey(uint8_t* address) {
   delete[] hex;
 }
 
-const string FMT_COMMAND_NAME = "\033[1;35m";
-const string FMT_COMMAND_DESC = "\033[35m";
-void command_fmt(string name, string description) {
-  cout << FMT_COMMAND_NAME + '`' + name + '`' + FMT_END
-       << FMT_COMMAND_DESC + " - " + description + FMT_END
+const string FMT_LIST_NAME = "\033[1;35m";
+const string FMT_LIST_DESC = "\033[35m";
+void list_fmt(string name, string description, bool cmd) {
+  cout << FMT_LIST_NAME + (cmd ? "`" : "")  + name + (cmd ? "`" : "") + FMT_END
+       << FMT_LIST_DESC + " - " + description + FMT_END
        << endl;
 }
+*/
+
 
 #endif //TALK_UTILITY_H

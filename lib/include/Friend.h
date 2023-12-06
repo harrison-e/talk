@@ -17,7 +17,8 @@ protected:
   vector<string> chat_history;
 
 public:
-  Friend() = default;
+  explicit Friend(uint32_t number)
+  : number {number}, connection {TOX_CONNECTION_NONE} {}
   ~Friend() = default;
 
   string get_name() const { return name; }
