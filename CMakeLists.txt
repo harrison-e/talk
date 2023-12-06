@@ -1,27 +1,62 @@
-cmake_minimum_required(VERSION 3.14)
+`cmake_minimum_required(VERSION 3.14)
 set(CMAKE_CXX_STANDARD 17)
 
 project(talk)
 
-# make sure we have libpthread
+# Find required libraries
 find_package(Threads REQUIRED)
-find_library(sodium libsodium sodium REQUIRED)
-find_library(toxcore libtoxcore toxcore REQUIRED)
-find_library(curses libcurses curses REQUIRED)
 
-add_executable(${CMAKE_PROJECT_NAME} main.cpp)
+# Set library paths based on the platform
+if(APPLE)
+    find_library(SODIUM_LIBRARY
+        NAMES sodium
+        HINTS /opt/homebrew/lib /usr/local/lib
+        REQUIRED
+    )
+    find_library(TOX_LIBRARY
+        NAMES toxcore
+        HINTS /opt/homebrew/lib /usr/local/lib
+        REQUIRED
+    )
+    find_library(CURSES_LIBRARY
+        NAMES curses
+        HINTS /usr/lib
+        REQUIRED
+    )
+    # Include Tox header files from Homebrew
+    find_path(TOX_INCLUDE_DIR tox/tox.h HINTS /opt/homebrew/include /usr/local/include)
+elseif(UNIX)
+    find_library(SODIUM_LIBRARY
+        NAMES sodium
+        HINTS /usr/local/lib
+        REQUIRED
+    )
+    find_library(TOX_LIBRARY
+        NAMES toxcore
+        HINTS /usr/local/lib
+        REQUIRED
+    )
+    find_library(CURSES_LIBRARY
+        NAMES curses
+        HINTS /usr/lib
+        REQUIRED
+    )
+    # Include Tox header files (modify this according to the actual location)
+    set(TOX_INCLUDE_DIR "/usr/local/include")
+endif()
 
-set_target_properties(${CMAKE_PEOJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE lib/include)
+# Create the executable
+add_executable(${PROJECT_NAME} main.cpp)
 
-# create executable, include libtoxchat and link all dependencies
-# add_executable(${CMAKE_PROJECT_NAME} echo_bot.cpp)
-# target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE lib/include)
-#target_link_directories(${CMAKE_PROJECT_NAME} PUBLIC /usr/local/lib)
-target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC
-        Threads::Threads
-        sodium
-        toxcore
-        curses
-        #toxchat
+# Set properties
+set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+target_include_directories(${PROJECT_NAME} PRIVATE lib/include ${TOX_INCLUDE_DIR})
+
+# Link libraries to the executable
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    Threads::Threads
+    ${SODIUM_LIBRARY}
+    ${TOX_LIBRARY}
+    ${CURSES_LIBRARY}`
 )
