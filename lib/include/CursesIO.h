@@ -29,14 +29,15 @@ public:
 
   // input
   void reset_input();
-  void get_command(string& line);
+  void get_line(string& line);
 
   // output
   void complete_print();
   void debug_print(string message);
   void info(string message);
   void error_print(string error);
-  void message_fmt(string name, string message);
+  void my_message_fmt(string name, string message);
+  void friend_message_fmt(string name, string message);
   void print_my_pubkey(uint8_t* address);
   void list_fmt(string name, string description, bool cmd);
 };
@@ -58,7 +59,7 @@ CursesIO::CursesIO() {
   init_pair(MY_NAME_COLOR, COLOR_WHITE, COLOR_BLUE);
   init_pair(FRIEND_NAME_COLOR, COLOR_WHITE, COLOR_MAGENTA);
 
-  int height = 4 * (LINES / 5);
+  int height = LINES - 2;
   int width = COLS;
   int start_x = 0;
   int start_y = 0;
@@ -85,7 +86,7 @@ void CursesIO::reset_input() {
   wrefresh(in);
 }
 
-void CursesIO::get_command(string& line) {
+void CursesIO::get_line(string& line) {
   int ch;
   // note that this will blow up if `line` goes over one line
   while ((ch = wgetch(in)) != '\n') {
@@ -131,19 +132,28 @@ void CursesIO::info(string message) {
 
 void CursesIO::error_print(string error) {
   lock_guard<mutex> lock(out_mutex);
-  wattron(out, COLOR_PAIR(2));
+  wattron(out, COLOR_PAIR(ERROR_COLOR));
   wprintw(out, ("[ERROR] " + error).c_str());
   complete_print();
-  wattroff(out, COLOR_PAIR(2));
+  wattroff(out, COLOR_PAIR(ERROR_COLOR));
 }
 
-
-void CursesIO::message_fmt(string name, string message) {
+void CursesIO::friend_message_fmt(string name, string message) {
   lock_guard<mutex> lock(out_mutex);
-  wattron(out, COLOR_PAIR(5));
-  wprintw(out, (name + " ").c_str());
+  wattron(out, COLOR_PAIR(FRIEND_NAME_COLOR));
+  wprintw(out, (" " + name + " ").c_str());
   wrefresh(out);
-  wattroff(out, COLOR_PAIR(5));
+  wattroff(out, COLOR_PAIR(FRIEND_NAME_COLOR));
+  wprintw(out, message.c_str());
+  complete_print();
+}
+
+void CursesIO::my_message_fmt(string name, string message) {
+  lock_guard<mutex> lock(out_mutex);
+  wattron(out, COLOR_PAIR(MY_NAME_COLOR));
+  wprintw(out, (" " + name + " ").c_str());
+  wrefresh(out);
+  wattroff(out, COLOR_PAIR(MY_NAME_COLOR));
   wprintw(out, message.c_str());
   complete_print();
 }

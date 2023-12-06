@@ -42,12 +42,6 @@ struct DHT_node bootstrap_nodes[] = {
                 "7A6098B590BDC73F9723FC59F82B3F9085A64D1B213AAF8E610FD351930D052D"},
 };
 
-enum CONVO_TYPE {
-  CONVO_NULL,
-  CONVO_FRIEND,
-};
-
-
 
 /*************************
  *    GLOBAL VARIABLES   *
@@ -59,8 +53,7 @@ Tox *tox;
 Friend me (UINT32_MAX);
 vector<shared_ptr<Friend>> friends;
 vector<shared_ptr<Request>> requests;
-CONVO_TYPE conversation = CONVO_NULL;
-uint32_t talkingTo = UINT32_MAX;
+uint32_t talking_to = UINT32_MAX;
 
 shared_ptr<Friend> friend_by_num(uint32_t friend_num) {
   for (auto f : friends) {
@@ -70,7 +63,7 @@ shared_ptr<Friend> friend_by_num(uint32_t friend_num) {
   return nullptr;
 }
 
-bool talking_to_friend(uint32_t friend_num) { return conversation == CONVO_FRIEND && talkingTo == friend_num; }
+bool talking_to_friend(uint32_t friend_num) { return talking_to == friend_num; }
 
 void add_friend(uint32_t friend_num) {
   friends.emplace_back(make_shared<Friend>(friend_num));
@@ -130,7 +123,7 @@ void friend_msg_cb(Tox* tox, uint32_t friend_number, TOX_MESSAGE_TYPE type,
   if (type == TOX_MESSAGE_TYPE_NORMAL) {
     f->add_to_history((char *) message);
     if (talking_to_friend(friend_number))
-      io.message_fmt(f->get_name(), (char *) message);
+      io.friend_message_fmt(f->get_name(), (char *) message);
     else
       io.info("new message from " + f->get_name());
   }
@@ -307,7 +300,21 @@ void command_deny(vector<string>& args) {
     io.error_print("request " + args[0] + " does not exist");
 }
 
-// todo: command talk
+void command_talk(vector<string>& args) {
+  if (args.empty()) {
+    io.error_print("usage: talk <friend_num>");
+    return;
+  }
+
+  uint32_t friend_num = stoul(args[0]);
+  if (auto f = friend_by_num(friend_num))
+    talking_to = friend_num;
+  else
+    io.error_print("friend #" + args[0] + " does not exist");
+}
+
+// todo: command history
+void command_history(vector<string>& args) {}
 
 void command_exit(vector<string>& args) {
   RUNNING = false;
@@ -318,19 +325,30 @@ void command_loop() {
   string line;
   while (RUNNING) {
     io.reset_input();
-    io.get_command(line);
+    io.get_line(line);
     if (!line.empty()) {
-      io.debug_print(line);
-      stringstream ss(line);
-      istream_iterator<string> begin(ss);
-      istream_iterator<string> end;
-      string command = *(begin++);
-      vector<string> args(begin, end);
-      run_command(command, args);
+      if (talking_to == UINT32_MAX) {
+        io.debug_print(line);
+        stringstream ss(line);
+        istream_iterator<string> begin(ss);
+        istream_iterator<string> end;
+        string command = *(begin++);
+        vector<string> args(begin, end);
+        run_command(command, args);
+      } else {
+        TOX_ERR_FRIEND_SEND_MESSAGE err;
+        tox_friend_send_message(tox, talking_to, TOX_MESSAGE_TYPE_NORMAL,
+                                (uint8_t *) line.c_str(), line.length(),&err);
+        if (err == TOX_ERR_FRIEND_SEND_MESSAGE_OK)
+          io.my_message_fmt(me.get_name(), line);
+        else
+          io.error_print("message send failed with code " + to_string(err));
+      }
       line = "";
     }
   }
 }
+
 
 
 /*************************
@@ -401,7 +419,7 @@ void init_commands() {
   commands.emplace_back("requests", "list all pending friend requests", command_requests);
   commands.emplace_back("accept", "accept a request, given its id", command_accept);
   commands.emplace_back("deny", "deny a friend request, given its id", command_deny);
-
+  commands.emplace_back("talk", "talk with a friend, given their number", command_talk);
   commands.emplace_back("exit", "exit the program", command_exit);
 }
 
@@ -432,11 +450,7 @@ int main() {
   io.info("use `help` for usage info");
   setup();
   io.print_my_pubkey(me.get_pubkey());
-  io.info("waiting to be online . . .");
-
-  // testing cmds
-//  vector<string> args { };
-//  run_command("help", args);
+  io.info("connecting to the network ...");
 
   assert(tox != nullptr);
 
