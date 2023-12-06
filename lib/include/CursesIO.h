@@ -144,7 +144,7 @@ void CursesIO::friend_message_fmt(string name, string message) {
   wprintw(out, (" " + name + " ").c_str());
   wrefresh(out);
   wattroff(out, COLOR_PAIR(FRIEND_NAME_COLOR));
-  wprintw(out, message.c_str());
+  wprintw(out, (" " + message).c_str());
   complete_print();
 }
 
@@ -154,7 +154,7 @@ void CursesIO::my_message_fmt(string name, string message) {
   wprintw(out, (" " + name + " ").c_str());
   wrefresh(out);
   wattroff(out, COLOR_PAIR(MY_NAME_COLOR));
-  wprintw(out, message.c_str());
+  wprintw(out, (" " + message).c_str());
   complete_print();
 }
 
