@@ -3,23 +3,18 @@
 #include <string>
 #include <cstdio>
 #include <iostream>
-using std::cout, std::string, std::sscanf;
+#include <mutex>
+using std::cout, std::endl, std::string, std::sscanf,
+  std::mutex, std::lock_guard;
 
 extern "C" {
 #include "tox/tox.h"
 #include "sodium.h"
 }
 
-////// debugging utilities
-static const bool DEBUGGING = true;
-static void debug_print(string to_print) {
-  if (DEBUGGING)
-    cout << to_print << '\n';
-}
-
 ////// conversion
-// uses new, make sure to delete rv
-static uint8_t* hex2bin(string hex) {
+// uses new, make sure to delete[] rv
+uint8_t* hex2bin(string hex) {
   size_t len = hex.length() / 2;
   auto *bin = new uint8_t[len];
 
@@ -30,8 +25,8 @@ static uint8_t* hex2bin(string hex) {
   return bin;
 }
 
-// uses new, make sure to delete rv
-static char* bin2hex(const uint8_t *bin, size_t length) {
+// uses new, make sure to delete[] rv
+char* bin2hex(const uint8_t *bin, size_t length) {
   char *hex = new char[2*length + 1];
   char *h_ptr = hex;
 
@@ -42,37 +37,76 @@ static char* bin2hex(const uint8_t *bin, size_t length) {
 }
 
 ////// formatted printing
-static const string FMT_FR = "\033[1;37;40m";
-static const string FMT_ME = "\033[1;37;44m";
-static const string FMT_OF = "\033[32m";
-static const string FMT_ON = "\033[33m";
-static const string FMT_ND = "\033[0m";
+static mutex print_mutex;
+const string FMT_END = "\033[0m";
 
-static string friend_name_fmt(string name) {
-  return FMT_FR + name + FMT_ND;
-}
-
-static string self_name_fmt(string name) {
-  return FMT_ME + name + FMT_ND;
-}
-
-static string connection2str(TOX_CONNECTION conn) {
-  switch (conn) {
-    case TOX_CONNECTION_NONE:
-      return FMT_OF + "Offline" + FMT_ND;
-    case TOX_CONNECTION_TCP:
-      return FMT_ON + "Online(TCP)" + FMT_ND;
-    case TOX_CONNECTION_UDP:
-      return FMT_ON + "Online(UDP)" + FMT_ND;
-    default:
-      return "UNKNOWN";
+const bool DEBUGGING = false;
+const string FMT_DEBUG = "\033[1;31m[DEBUG] ";
+void debug_print(string message) {
+  if (DEBUGGING) {
+    lock_guard<mutex> lock(print_mutex);
+    cout << FMT_DEBUG + message + FMT_END << endl;
   }
 }
 
-static void print_pubkey(uint8_t* address) {
-  char* hex = bin2hex(address, TOX_ADDRESS_SIZE);
-  std::cout << string(hex);
+const string FMT_INFO = "\033[1;36m[INFO] ";
+void info(string message) {
+  lock_guard<mutex> lock(print_mutex);
+  cout << FMT_INFO + message + FMT_END << endl;
+}
+
+const string FMT_ERROR = "\033[1;31m[ERROR] ";
+void error_print(string error) {
+  lock_guard<mutex> lock(print_mutex);
+  cout << FMT_ERROR + error + FMT_END << endl;
+}
+
+const string FMT_FRIEND_NAME = "\033[1;37;40m";
+string friend_name_fmt(string name) {
+  return FMT_FRIEND_NAME + name + FMT_END;
+}
+
+const string FMT_MY_NAME = "\033[1;37;44m";
+string self_name_fmt(string name) {
+  return FMT_MY_NAME + name + FMT_END;
+}
+
+void message_fmt(string name, string message) {
+  lock_guard<mutex> lock(print_mutex);
+  cout << name + "  " + message << endl;
+}
+
+const string FMT_OFFLINE = "\033[32m";
+const string FMT_ONLINE = "\033[33m";
+string connection2str(TOX_CONNECTION conn) {
+  lock_guard<mutex> lock(print_mutex);
+  switch (conn) {
+    case TOX_CONNECTION_NONE:
+      return FMT_OFFLINE + "offline" + FMT_END;
+    case TOX_CONNECTION_TCP:
+      return FMT_ONLINE + "online (TCP)" + FMT_END;
+    case TOX_CONNECTION_UDP:
+      return FMT_ONLINE + "online (UDP)" + FMT_END;
+    default:
+      return "unknown";
+  }
+}
+
+const string FMT_MY_KEY = "\033[1;33m";
+void print_my_pubkey(uint8_t* address) {
+  lock_guard<mutex> lock(print_mutex);
+  auto hex = bin2hex(address, TOX_ADDRESS_SIZE);
+  cout << FMT_MY_KEY + "your public key:" + FMT_END << endl;
+  cout << FMT_MY_KEY + string(hex) + FMT_END << endl;
   delete[] hex;
+}
+
+const string FMT_COMMAND_NAME = "\033[1;35m";
+const string FMT_COMMAND_DESC = "\033[35m";
+void command_fmt(string name, string description) {
+  cout << FMT_COMMAND_NAME + '`' + name + '`' + FMT_END
+       << FMT_COMMAND_DESC + " - " + description + FMT_END
+       << endl;
 }
 
 #endif //TALK_UTILITY_H

@@ -11,6 +11,7 @@ class Friend {
 protected:
   string name;
   string status;
+  uint32_t number;
   uint8_t public_key[TOX_PUBLIC_KEY_SIZE];
   TOX_CONNECTION connection;
   vector<string> chat_history;
@@ -19,16 +20,18 @@ public:
   Friend() = default;
   ~Friend() = default;
 
-  string getName() const { return name; }
-  string getStatus() const { return status; }
-  uint8_t* getPubKey() { return (uint8_t *) &public_key; }
-  TOX_CONNECTION getConnection() const { return connection; }
-  const vector<string>* getHistory() const { return &chat_history; }
+  string get_name() const { return name; }
+  string get_status() const { return status; }
+  uint32_t get_number() const { return number; }
+  uint8_t* get_pubkey() { return public_key; }
+  TOX_CONNECTION get_connection() const { return connection; }
+  const vector<string>* get_history() const { return &chat_history; }
 
-  void setName(string name) { this->name = name; }
-  void setStatus(string status) { this->status = status; }
-  void setConnection(TOX_CONNECTION conn) { connection = conn; }
-  void addToHistory(string message) { chat_history.push_back(message); }
+  void set_name(string name) { this->name = name; }
+  void set_status(string status) { this->status = status; }
+  void set_connection(TOX_CONNECTION conn) { connection = conn; }
+  void set_number(uint32_t number) { this->number = number; }
+  void add_to_history(string message) { chat_history.push_back(message); }
 };
 
 #endif //TUITALK_FRIEND_H

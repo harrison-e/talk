@@ -15,13 +15,13 @@ protected:
 public:
   Request() = default;
 
-  void setMessage(const string message) { this->message = message; }
-  void setID(uint32_t id) { this->id = id; }
-  void setPubKey(const uint8_t* pubkey) { for (int i=0;i<TOX_PUBLIC_KEY_SIZE;++i) this->pubkey[i]=pubkey[i];}
+  void set_message(const string message) { this->message = message; }
+  void set_id(uint32_t id) { this->id = id; }
+  void set_pubkey(const uint8_t* pubkey) { for (int i=0;i<TOX_PUBLIC_KEY_SIZE;++i) this->pubkey[i]=pubkey[i];}
 
-  string getMessage() const { return message; }
-  uint32_t getID() const { return id; }
-  const uint8_t* getPubKey() const { return pubkey; }
+  string get_message() const { return message; }
+  uint32_t get_id() const { return id; }
+  const uint8_t* get_pubkey() const { return pubkey; }
 };
 
 #endif //TALK_REQUEST_H
