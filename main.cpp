@@ -84,7 +84,7 @@ void add_friend(uint32_t friend_num) {
   friend_by_num(friend_num)->set_name((char *) buf);
 
   TOX_ERR_FRIEND_GET_PUBLIC_KEY err_pubkey;
-  tox_friend_get_public_key(tox, friend_num, friends.back()->get_pubkey(), &err_pubkey);
+  tox_friend_get_public_key(tox, friend_num, friends.back()->get_address(), &err_pubkey);
   if (err_pubkey != TOX_ERR_FRIEND_GET_PUBLIC_KEY_OK) {
     io.error_print("friend get public key failed with code " + to_string(err_pubkey));
     return;
@@ -384,7 +384,7 @@ void command_info(vector<string>& args) {
     io.info("name: " + me.get_name());
     io.info("status: " + me.get_status());
     io.info("connection: " + connection2str(me.get_connection()));
-    io.print_my_pubkey(me.get_pubkey());
+    io.print_my_pubkey(me.get_address());
     return;
   }
 
@@ -400,7 +400,7 @@ void command_info(vector<string>& args) {
     io.info("name: " + f->get_name());
     io.info("status: " + f->get_status());
     io.info("connection: " + connection2str(f->get_connection()));
-    io.print_friend_pubkey(f->get_pubkey());
+    io.print_friend_pubkey(f->get_address());
   } else
     io.error_print("friend #" + args[0] + " does not exist");
 }
@@ -502,7 +502,7 @@ void init_me() {
   tox_self_get_status_message(tox, buf);
   me.set_status((char *) buf);
   delete[] buf;
-  tox_self_get_public_key(tox, me.get_pubkey());
+  tox_self_get_address(tox, me.get_address());
 }
 
 void init_commands() {
@@ -546,7 +546,7 @@ int main() {
   io.info("welcome to talk");
   io.info("use `help` for usage info");
   setup();
-  io.print_my_pubkey(me.get_pubkey());
+  io.print_my_pubkey(me.get_address());
   io.info("connecting to the network ...");
 
   assert(tox != nullptr);

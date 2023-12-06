@@ -12,7 +12,7 @@ protected:
   string name;
   string status;
   uint32_t number;
-  uint8_t public_key[TOX_PUBLIC_KEY_SIZE];
+  uint8_t address[TOX_ADDRESS_SIZE];
   TOX_CONNECTION connection;
   vector<string> chat_history;
 
@@ -24,7 +24,7 @@ public:
   string get_name() const { return name; }
   string get_status() const { return status; }
   uint32_t get_number() const { return number; }
-  uint8_t* get_pubkey() { return public_key; }
+  uint8_t* get_address() { return address; }
   TOX_CONNECTION get_connection() const { return connection; }
   vector<string>& get_history() { return chat_history; }
 
