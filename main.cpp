@@ -67,10 +67,30 @@ bool talking_to_friend(uint32_t friend_num) { return talking_to == friend_num; }
 
 void add_friend(uint32_t friend_num) {
   friends.emplace_back(make_shared<Friend>(friend_num));
+  TOX_ERR_FRIEND_QUERY err_name;
+  size_t len = tox_friend_get_name_size(tox, friend_num, &err_name);
+  if (err_name != TOX_ERR_FRIEND_QUERY_OK) {
+    io.error_print("friend get name size failed with code " + to_string(err_name));
+    return;
+  }
+
+  uint8_t buf[len];
+  tox_friend_get_name(tox, friend_num, buf, &err_name);
+  if (err_name != TOX_ERR_FRIEND_QUERY_OK) {
+    io.error_print("friend get name failed with code " + to_string(err_name));
+    return;
+  }
+
+  friend_by_num(friend_num)->set_name((char *) buf);
+
   TOX_ERR_FRIEND_GET_PUBLIC_KEY err_pubkey;
   tox_friend_get_public_key(tox, friend_num, friends.back()->get_pubkey(), &err_pubkey);
-  if (err_pubkey != TOX_ERR_FRIEND_GET_PUBLIC_KEY_OK)
+  if (err_pubkey != TOX_ERR_FRIEND_GET_PUBLIC_KEY_OK) {
     io.error_print("friend get public key failed with code " + to_string(err_pubkey));
+    return;
+  }
+
+  io.info("added friend at number " + to_string(friend_num));
 }
 
 shared_ptr<Request> request_by_id(uint32_t id) {
@@ -273,7 +293,14 @@ void command_accept(vector<string>& args) {
     return;
   }
 
-  uint32_t id = stoul(args[0]);
+  uint32_t id;
+  try {
+    id = stoul(args[0]);
+  }
+  catch (std::invalid_argument ia) {
+    io.error_print("argument must be a valid request id - see `requests`");
+    return;
+  }
   if (auto r = request_by_id(id)) {
     TOX_ERR_FRIEND_ADD err;
     uint32_t friend_num = tox_friend_add_norequest(tox, r->get_pubkey(), &err);
@@ -293,7 +320,14 @@ void command_deny(vector<string>& args) {
     return;
   }
 
-  uint32_t id = stoul(args[0]);
+  uint32_t id;
+  try {
+    id = stoul(args[0]);
+  }
+  catch (std::invalid_argument ia) {
+    io.error_print("argument must be a valid request id - see `requests`");
+    return;
+  }
   if (auto r = request_by_id(id))
     request_remove_id(id);
   else
@@ -306,15 +340,70 @@ void command_talk(vector<string>& args) {
     return;
   }
 
-  uint32_t friend_num = stoul(args[0]);
-  if (auto f = friend_by_num(friend_num))
+  uint32_t friend_num;
+  try {
+    friend_num = stoul(args[0]);
+  }
+  catch (std::invalid_argument ia) {
+    io.error_print("argument must be a valid friend number - see `phonebook`");
+    return;
+  }
+  if (auto f = friend_by_num(friend_num)) {
     talking_to = friend_num;
-  else
+    io.info("now talking to " + f->get_name());
+    io.info("type \"/leave\" to exit the conversation");
+  } else
     io.error_print("friend #" + args[0] + " does not exist");
 }
 
 // todo: command history
-void command_history(vector<string>& args) {}
+void command_history(vector<string>& args) {
+  if (args.empty()) {
+    io.error_print("usage: history <friend_num>");
+    return;
+  }
+
+  uint32_t friend_num;
+  try {
+    friend_num = stoul(args[0]);
+  }
+  catch (std::invalid_argument ia) {
+    io.error_print("argument must be a valid friend number - see `phonebook`");
+    return;
+  }
+  if (auto f = friend_by_num(friend_num)) {
+    lock_guard<mutex> lock(out_mutex);
+    for (auto entry : f->get_history())
+      io.friend_message_fmt(f->get_name(), entry);
+  } else
+    io.error_print("friend #" + args[0] + " does not exist");
+}
+
+void command_info(vector<string>& args) {
+  if (args.empty()) {
+    io.info("name: " + me.get_name());
+    io.info("status: " + me.get_status());
+    io.info("connection: " + connection2str(me.get_connection()));
+    io.print_my_pubkey(me.get_pubkey());
+    return;
+  }
+
+  uint32_t friend_num;
+  try {
+    friend_num = stoul(args[0]);
+  }
+  catch (std::invalid_argument ia) {
+    io.error_print("argument must be a valid friend number - see `phonebook`");
+    return;
+  }
+  if (auto f = friend_by_num(friend_num)) {
+    io.info("name: " + f->get_name());
+    io.info("status: " + f->get_status());
+    io.info("connection: " + connection2str(f->get_connection()));
+    io.print_friend_pubkey(f->get_pubkey());
+  } else
+    io.error_print("friend #" + args[0] + " does not exist");
+}
 
 void command_exit(vector<string>& args) {
   RUNNING = false;
@@ -336,6 +425,12 @@ void command_loop() {
         vector<string> args(begin, end);
         run_command(command, args);
       } else {
+        if (line == "/leave") {
+          io.info("leaving conversation with " + friend_by_num(talking_to)->get_name());
+          talking_to = UINT32_MAX;
+          line = "";
+          continue;
+        }
         TOX_ERR_FRIEND_SEND_MESSAGE err;
         tox_friend_send_message(tox, talking_to, TOX_MESSAGE_TYPE_NORMAL,
                                 (uint8_t *) line.c_str(), line.length(),&err);
@@ -412,7 +507,9 @@ void init_me() {
 
 void init_commands() {
   commands.emplace_back("help", "print this message, use with arg for singular", command_help);
-  commands.emplace_back("add", "add a friend by their tox id, with optional msg", command_add_friend);
+  commands.emplace_back("info", "info about you, or someone identified by their friend number", command_info);
+  commands.emplace_back("history", "chat history with a friend, specified by number", command_history);
+  commands.emplace_back("add", "add a friend by their tox id, with a request msg", command_add_friend);
   commands.emplace_back("setname", "change your name", command_set_name);
   commands.emplace_back("setstatus", "change your status message", command_set_status_msg);
   commands.emplace_back("phonebook", "list all current friends", command_phonebook);

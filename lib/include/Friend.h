@@ -26,7 +26,7 @@ public:
   uint32_t get_number() const { return number; }
   uint8_t* get_pubkey() { return public_key; }
   TOX_CONNECTION get_connection() const { return connection; }
-  const vector<string>* get_history() const { return &chat_history; }
+  vector<string>& get_history() { return chat_history; }
 
   void set_name(string name) { this->name = name; }
   void set_status(string status) { this->status = status; }

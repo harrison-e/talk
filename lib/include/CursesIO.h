@@ -39,6 +39,7 @@ public:
   void my_message_fmt(string name, string message);
   void friend_message_fmt(string name, string message);
   void print_my_pubkey(uint8_t* address);
+  void print_friend_pubkey(uint8_t* address);
   void list_fmt(string name, string description, bool cmd);
 };
 
@@ -106,7 +107,7 @@ void CursesIO::get_line(string& line) {
 
 // output
 void CursesIO::complete_print() {
-  wprintw(out, "\n");
+  wprintw(out, "\n\n");
   wrefresh(out);
 }
 
@@ -163,6 +164,17 @@ void CursesIO::print_my_pubkey(uint8_t* address) {
   auto hex = bin2hex(address, TOX_ADDRESS_SIZE);
   wattron(out, COLOR_PAIR(4));
   wprintw(out, "your public key: ");
+  wprintw(out, (string(hex)).c_str());
+  complete_print();
+  wattroff(out, COLOR_PAIR(4));
+  delete[] hex;
+}
+
+void CursesIO::print_friend_pubkey(uint8_t* address) {
+  lock_guard<mutex> lock(out_mutex);
+  auto hex = bin2hex(address, TOX_ADDRESS_SIZE);
+  wattron(out, COLOR_PAIR(4));
+  wprintw(out, "their public key: ");
   wprintw(out, (string(hex)).c_str());
   complete_print();
   wattroff(out, COLOR_PAIR(4));

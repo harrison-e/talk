@@ -1,8 +1,9 @@
 # Talk
+[](!)
 
 *Used as a final project for CS3520 @ NU*
 
-Talk is a peer-to-peer messaging client for [Tox](https://github.com/TokTok/c-toxcore/).
+Talk is an encrypted, peer-to-peer messaging client for [Tox](https://github.com/TokTok/c-toxcore/).
 
 
 # Dependencies
