@@ -7,6 +7,9 @@
     </div>
 </div>
 
+| ![](screen_linux_1) | ![](screen_mac) |
+|---|---|
+| talk on Linux | or talk on Mac |
 
 # Talk
 
