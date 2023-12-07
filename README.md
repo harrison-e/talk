@@ -1,5 +1,6 @@
 # Talk
-[](!"screen_linux_1.jpg")
+![linux example 1]("screen_linux_1.jpg")
+![max example]("screen_mac.jpg")
 
 *Used as a final project for CS3520 @ NU*
 
