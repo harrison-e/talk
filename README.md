@@ -1,6 +1,6 @@
 <p float="left"> 
-    <img src="screen_linux_1.png" width="100" />
-    <img src="screen_mac.png" width="100" />
+    <img src="screen_linux_1.png" width="50%" />
+    <img src="screen_mac.png" width="50%" />
 </p>
 
 # Talk
