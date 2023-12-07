@@ -43,7 +43,7 @@ Finally, run the executable `talk`:
 
 Talk has a set of commands, that allow the user to perform various functions of the Tox API. The user's current input can be seen at the bottom of the screen, after the `>` marker.
 
-To get started, users should first make note of their Tox ID, which is displayed on startup, in yellow. This can be used with the [`add`](###`add`) command by a different user to send a friend request. After a one user `add`s another, the other user can see the request and
+To get started, users should first make note of their Tox ID, which is displayed on startup, in yellow. This can be used with the [`add`](#`add`) command by a different user to send a friend request. After a one user `add`s another, the other user can see the request and
 
 
 ### `add`
