@@ -1,4 +1,5 @@
 # Talk
+<img src="screen_linux_2.png" width="50%">
 ![linux example 1](screen_linux_1.png)
 ![max example](screen_mac.png)
 
