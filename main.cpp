@@ -11,12 +11,10 @@
 #include <numeric>
 #include <cstdio>
 #include <fstream>
-#include <filesystem>
 #include <memory>
 #include <thread>
 #include <future>
 #include <sstream>
-namespace fs = std::filesystem;
 using std::make_shared, std::stringstream, std::ifstream,
 std::to_string, std::stoul, std::thread, std::istream_iterator;
 
