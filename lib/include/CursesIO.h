@@ -24,17 +24,19 @@ class CursesIO {
 protected:
   WINDOW* out;
   WINDOW* in;
+  bool command_mode;
 
 public:
   CursesIO();
   ~CursesIO();
 
   // input
+  void toggle_input() { command_mode = !command_mode; }
   void reset_input();
   void get_line(string& line);
 
   // output
-  void complete_print();
+  void newline();
   void starter_message();
   void debug_print(string message);
   void info(string message);
@@ -42,7 +44,7 @@ public:
   void my_message_fmt(shared_ptr<Message> m);
   void friend_message_fmt(shared_ptr<Message> m);
   void print_my_tox_id(uint8_t* address);
-  void print_friend_pubkey(uint8_t* address);
+  void print_pubkey(uint8_t* address);
   void list_fmt(string name, string description, bool cmd);
 };
 
@@ -70,6 +72,7 @@ CursesIO::CursesIO() {
 
   out = newwin(height, width, start_y, start_x);
   in = newwin(height, width, start_y + height, start_x);
+  command_mode = true;
 
   scrollok(out, true);
   scrollok(in, true);
@@ -77,15 +80,19 @@ CursesIO::CursesIO() {
 
 // destructor (cleanup)
 CursesIO::~CursesIO() {
-  delwin(in);
   delwin(out);
+  delwin(in);
+  endwin();
   endwin();
 }
 
 // input
 void CursesIO::reset_input() {
   wmove(in, 1, 0);
-  wprintw(in, "> ");
+  if (command_mode)
+    wprintw(in, "> ");
+  else
+    wprintw(in, ">> ");
   wclrtoeol(in);
   wrefresh(in);
 }
@@ -111,8 +118,8 @@ void CursesIO::get_line(string& line) {
 }
 
 // output
-void CursesIO::complete_print() {
-  wprintw(out, "\n\n");
+void CursesIO::newline() {
+  wprintw(out, "\n");
   wrefresh(out);
 }
 
@@ -123,7 +130,7 @@ void CursesIO::starter_message() {
   wprintw(out, "to connect with others, either share your Tox id, or add theirs\n\n");
   wprintw(out, "try setting your name with `setname` <name>,\n");
   wprintw(out, "and setting your status with `setstatus` <status>");
-  complete_print();
+  newline();
   wattroff(out, COLOR_PAIR(KEY_COLOR));
 }
 
@@ -132,7 +139,7 @@ void CursesIO::debug_print(string message) {
     lock_guard<mutex> lock(out_mutex);
     wattron(out, COLOR_PAIR(DEBUG_COLOR));
     wprintw(out, ("[DEBUG] " + message).c_str());
-    complete_print();
+    newline();
     wattroff(out, COLOR_PAIR(DEBUG_COLOR));
   }
 }
@@ -142,7 +149,7 @@ void CursesIO::info(string message) {
   lock_guard<mutex> lock(out_mutex);
   wattron(out, COLOR_PAIR(INFO_COLOR));
   wprintw(out, ("[INFO] " + message).c_str());
-  complete_print();
+  newline();
   wattroff(out, COLOR_PAIR(INFO_COLOR));
 }
 
@@ -151,7 +158,7 @@ void CursesIO::error_print(string error) {
   lock_guard<mutex> lock(out_mutex);
   wattron(out, COLOR_PAIR(ERROR_COLOR));
   wprintw(out, ("[ERROR] " + error).c_str());
-  complete_print();
+  newline();newline();
   wattroff(out, COLOR_PAIR(ERROR_COLOR));
 }
 
@@ -163,7 +170,7 @@ void CursesIO::friend_message_fmt(shared_ptr<Message> m) {
   wrefresh(out);
   wattroff(out, COLOR_PAIR(FRIEND_NAME_COLOR));
   wprintw(out, (" " + m->get_content()).c_str());
-  complete_print();
+  newline();newline();
 }
 
 void CursesIO::my_message_fmt(shared_ptr<Message> m) {
@@ -174,27 +181,28 @@ void CursesIO::my_message_fmt(shared_ptr<Message> m) {
   wrefresh(out);
   wattroff(out, COLOR_PAIR(MY_NAME_COLOR));
   wprintw(out, (" " + m->get_content()).c_str());
-  complete_print();
+  newline();newline();
 }
 
 void CursesIO::print_my_tox_id(uint8_t* address) {
   lock_guard<mutex> lock(out_mutex);
   auto hex = bin2hex(address, TOX_ADDRESS_SIZE);
   wattron(out, COLOR_PAIR(4));
+  newline();
   wprintw(out, "your Tox id: ");
   wprintw(out, (string(hex)).c_str());
-  complete_print();
+  newline();newline();
   wattroff(out, COLOR_PAIR(4));
   delete[] hex;
 }
 
-void CursesIO::print_friend_pubkey(uint8_t* address) {
+void CursesIO::print_pubkey(uint8_t* address) {
   lock_guard<mutex> lock(out_mutex);
-  auto hex = bin2hex(address, TOX_ADDRESS_SIZE);
+  auto hex = bin2hex(address, TOX_PUBLIC_KEY_SIZE);
   wattron(out, COLOR_PAIR(4));
-  wprintw(out, "their public key: ");
+  wprintw(out, "public key: ");
   wprintw(out, (string(hex)).c_str());
-  complete_print();
+  newline();
   wattroff(out, COLOR_PAIR(4));
   delete[] hex;
 }
@@ -203,7 +211,7 @@ void CursesIO::list_fmt(string name, string rest, bool cmd) {
   wattron(out, COLOR_PAIR(5));
   wprintw(out, ((cmd ? "`" : "") + name + (cmd ? "`" : "")).c_str());
   wprintw(out, (" - " + rest).c_str());
-  complete_print();
+  newline();
   wattroff(out, COLOR_PAIR(5));
 }
 

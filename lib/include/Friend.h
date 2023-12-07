@@ -14,7 +14,7 @@ protected:
   string name;
   string status;
   uint32_t number;
-  uint8_t address[TOX_ADDRESS_SIZE];
+  uint8_t pubkey[TOX_PUBLIC_KEY_SIZE];
   TOX_CONNECTION connection;
   vector<shared_ptr<Message>> unread_messages;
   vector<shared_ptr<Message>> chat_history;
@@ -27,7 +27,7 @@ public:
   string get_name() const { return name; }
   string get_status() const { return status; }
   uint32_t get_number() const { return number; }
-  uint8_t* get_address() { return address; }
+  uint8_t* get_pub_key() { return pubkey; }
   TOX_CONNECTION get_connection() const { return connection; }
   vector<shared_ptr<Message>>& get_unread_messages() { return unread_messages; }
   vector<shared_ptr<Message>>& get_history() { return chat_history; }
