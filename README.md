@@ -1,6 +1,13 @@
 # Talk
-<img src="screen_linux_1.png" width="50%">
-<img src="screen_mac.png" width="50%">
+
+<div class="row">
+    <div class="column">
+        <img src="screen_linux_1.png" style="width:50%">
+        <img src="screen_mac.png" width="50%">
+    </div>
+</div>
+
+
 
 *Used as a final project for CS3520 @ NU*
 
