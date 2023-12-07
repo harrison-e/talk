@@ -1,6 +1,6 @@
 # Talk
-![linux example 1](screen_linux_1.jpg)
-![max example](screen_mac.jpg)
+![linux example 1](screen_linux_1.png)
+![max example](screen_mac.png)
 
 *Used as a final project for CS3520 @ NU*
 
