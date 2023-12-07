@@ -1,9 +1,20 @@
 # Talk
 
+.row {
+    display: flex;
+}
+
+.column {
+    flex: 33.33%;
+    padding: 5px;
+}
+
 <div class="row">
     <div class="column">
-        <img src="screen_linux_1.png" style="width:50%">
-        <img src="screen_mac.png" width="50%">
+        <img src="screen_linux_1.png" style="width:100%">
+    </div>
+    <div class="column">
+        <img src="screen_mac.png" style="width:100%">
     </div>
 </div>
 
