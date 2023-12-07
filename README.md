@@ -7,6 +7,12 @@
     </div>
 </div>
 
+<p display="flex"> 
+    <img src="screen_linux_1.png" flex=45%>
+    <img src="screen_mac.png" flex=45%>
+</p>
+
+
 | ![](screen_linux_1) | ![](screen_mac) |
 |---|---|
 | talk on Linux | or talk on Mac |
