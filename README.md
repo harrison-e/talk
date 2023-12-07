@@ -1,8 +1,8 @@
-<div style="display: flex">
-    <div style="flex: 40%">
+<div style="display:flex">
+    <div style="flex:40%">
         <img src="screen_linux_1.png" style="width:100%">
     </div>
-    <div style="flex: 40%">
+    <div style="flex:40%">
         <img src="screen_mac.png" style="width:100%">
     </div>
 </div>
