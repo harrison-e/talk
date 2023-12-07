@@ -1,7 +1,6 @@
 # Talk
-<img src="screen_linux_2.png" width="50%">
-![linux example 1](screen_linux_1.png)
-![max example](screen_mac.png)
+<img src="screen_linux_1.png" width="50%">
+<img src="screen_mac.png" width="50%">
 
 *Used as a final project for CS3520 @ NU*
 
