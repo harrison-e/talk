@@ -72,7 +72,7 @@ shared_ptr<Friend> friend_by_num(uint32_t friend_num) {
   return nullptr;
 }
 
-shared_ptr<Friend> friend_by_name(string name) {
+shared_ptr<Friend> friend_by_name(string& name) {
   for (auto f : friends) {
     if (f->get_name() == name)
       return f;
@@ -80,7 +80,7 @@ shared_ptr<Friend> friend_by_name(string name) {
   return nullptr;
 }
 
-shared_ptr<Friend> friend_from_arg(string arg) {
+shared_ptr<Friend> friend_from_arg(string& arg) {
   char* end;
   uint32_t friend_num;
   shared_ptr<Friend> f = nullptr;
@@ -88,9 +88,8 @@ shared_ptr<Friend> friend_from_arg(string arg) {
     friend_num = strtoul(arg.c_str(), &end, 10);
     f = friend_by_num(friend_num);
   }
-  catch (std::invalid_argument &arg) {
-    f = friend_by_name(arg.what());
-    friend_num = f->get_number();
+  catch (std::invalid_argument &inv) {
+    f = friend_by_name(arg);
   }
 
   return f;
