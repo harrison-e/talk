@@ -1,8 +1,7 @@
-<p float="left"> 
-    <p width="3%" />
+<p align="center"> 
     <img src="screen_linux_1.png" width="45%" />
+    &nbsp;&nbsp;
     <img src="screen_mac.png" width="45%" />
-    <p width="3%" />
 </p>
 
 
