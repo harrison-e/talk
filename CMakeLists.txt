@@ -18,9 +18,9 @@ if(APPLE)
         HINTS /opt/homebrew/lib /usr/local/lib
         REQUIRED
     )
-    find_library(CURSES_LIBRARY
-        NAMES curses
-        HINTS /usr/lib
+    find_library(CURSES
+        NAMES curses libcurses ncurses libncurses
+        HINTS /usr/lib /lib
         REQUIRED
     )
     # Include Tox header files from Homebrew
@@ -36,9 +36,9 @@ elseif(UNIX)
         HINTS /usr/local/lib
         REQUIRED
     )
-    find_library(CURSES_LIBRARY
-        NAMES curses
-        HINTS /usr/lib
+    find_library(CURSES
+        NAMES curses libcurses ncurses libncurses
+        HINTS /usr/lib /usr/include
         REQUIRED
     )
     # Include Tox header files (modify this according to the actual location)
@@ -46,7 +46,8 @@ elseif(UNIX)
 endif()
 
 # Create the executable
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} main.cpp
+        lib/include/Message.h)
 
 # Set properties
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
@@ -58,5 +59,5 @@ target_link_libraries(${PROJECT_NAME}
     Threads::Threads
     ${SODIUM_LIBRARY}
     ${TOX_LIBRARY}
-    ${CURSES_LIBRARY}`
+    ${CURSES}
 )

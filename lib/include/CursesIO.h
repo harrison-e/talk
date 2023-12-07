@@ -2,9 +2,11 @@
 #define TALK_CURSESIO_H
 #include <curses.h>
 #include <mutex>
+#include <memory>
 #include "Utility.h"
+#include "Message.h"
 
-using std::string, std::mutex, std::lock_guard;
+using std::string, std::shared_ptr, std::mutex, std::lock_guard;
 
 const bool DEBUGGING = false;
 
@@ -33,12 +35,13 @@ public:
 
   // output
   void complete_print();
+  void starter_message();
   void debug_print(string message);
   void info(string message);
   void error_print(string error);
-  void my_message_fmt(string name, string message);
-  void friend_message_fmt(string name, string message);
-  void print_my_pubkey(uint8_t* address);
+  void my_message_fmt(shared_ptr<Message> m);
+  void friend_message_fmt(shared_ptr<Message> m);
+  void print_my_tox_id(uint8_t* address);
   void print_friend_pubkey(uint8_t* address);
   void list_fmt(string name, string description, bool cmd);
 };
@@ -89,18 +92,20 @@ void CursesIO::reset_input() {
 
 void CursesIO::get_line(string& line) {
   int ch;
+  int prev;
   // note that this will blow up if `line` goes over one line
+  int row, col;
   while ((ch = wgetch(in)) != '\n') {
     if (ch == erasechar() && line.length() > 0) {
-      int row, col;
       getyx(in, row, col);
-      wmove(in, row, col - 1);
+      wmove(in, row, col - (prev < 32 ? 2 : 1));
       wdelch(in);
-      line = line.substr(0, line.length() - 1);
-    } else {
+      line = line.substr(0, line.length() - (prev < 32 ? 2 : 1));
+    } else if (ch >= 32 && ch < 127) {
       wprintw(in, "%c", ch);
       line += (char) ch;
     }
+    prev = ch;
     wrefresh(in);
   }
 }
@@ -109,6 +114,17 @@ void CursesIO::get_line(string& line) {
 void CursesIO::complete_print() {
   wprintw(out, "\n\n");
   wrefresh(out);
+}
+
+void CursesIO::starter_message() {
+  lock_guard<mutex> lock(out_mutex);
+  wattron(out, COLOR_PAIR(KEY_COLOR));
+  wprintw(out, "talk is a peer-to-peer messaging client, powered by Tox\n");
+  wprintw(out, "to connect with others, either share your Tox id, or add theirs\n\n");
+  wprintw(out, "try setting your name with `setname` <name>,\n");
+  wprintw(out, "and setting your status with `setstatus` <status>");
+  complete_print();
+  wattroff(out, COLOR_PAIR(KEY_COLOR));
 }
 
 void CursesIO::debug_print(string message) {
@@ -139,31 +155,33 @@ void CursesIO::error_print(string error) {
   wattroff(out, COLOR_PAIR(ERROR_COLOR));
 }
 
-void CursesIO::friend_message_fmt(string name, string message) {
+void CursesIO::friend_message_fmt(shared_ptr<Message> m) {
   lock_guard<mutex> lock(out_mutex);
+  wprintw(out, (m->get_timestamp() + "  ").c_str());
   wattron(out, COLOR_PAIR(FRIEND_NAME_COLOR));
-  wprintw(out, (" " + name + " ").c_str());
+  wprintw(out, (" " + m->get_sender() + " ").c_str());
   wrefresh(out);
   wattroff(out, COLOR_PAIR(FRIEND_NAME_COLOR));
-  wprintw(out, (" " + message).c_str());
+  wprintw(out, (" " + m->get_content()).c_str());
   complete_print();
 }
 
-void CursesIO::my_message_fmt(string name, string message) {
+void CursesIO::my_message_fmt(shared_ptr<Message> m) {
   lock_guard<mutex> lock(out_mutex);
+  wprintw(out, (m->get_timestamp() + "  ").c_str());
   wattron(out, COLOR_PAIR(MY_NAME_COLOR));
-  wprintw(out, (" " + name + " ").c_str());
+  wprintw(out, (" " + m->get_sender() + " ").c_str());
   wrefresh(out);
   wattroff(out, COLOR_PAIR(MY_NAME_COLOR));
-  wprintw(out, (" " + message).c_str());
+  wprintw(out, (" " + m->get_content()).c_str());
   complete_print();
 }
 
-void CursesIO::print_my_pubkey(uint8_t* address) {
+void CursesIO::print_my_tox_id(uint8_t* address) {
   lock_guard<mutex> lock(out_mutex);
   auto hex = bin2hex(address, TOX_ADDRESS_SIZE);
   wattron(out, COLOR_PAIR(4));
-  wprintw(out, "your public key: ");
+  wprintw(out, "your Tox id: ");
   wprintw(out, (string(hex)).c_str());
   complete_print();
   wattroff(out, COLOR_PAIR(4));

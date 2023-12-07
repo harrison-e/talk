@@ -2,6 +2,7 @@
 #define TALK_UTILITY_H
 #include <string>
 #include <cstdio>
+#include <time.h>
 using std::string, std::sscanf;
 
 extern "C" {
@@ -54,6 +55,17 @@ string connection2str(TOX_CONNECTION conn) {
     default:
       return "unknown";
   }
+}
+
+// Get current date/time, format is YYYY-MM-DD.HH:mm:ss
+const string currentDateTime() {
+  time_t     now = time(0);
+  struct tm  tstruct;
+  char       buf[80];
+  tstruct = *localtime(&now);
+  strftime(buf, sizeof(buf), "%b-%d %R", &tstruct);
+
+  return buf;
 }
 
 #endif //TALK_UTILITY_H
