@@ -1,7 +1,11 @@
 <p float="left"> 
+    <p width="3%" />
     <img src="screen_linux_1.png" width="45%" />
+    <p width="3%" />
     <img src="screen_mac.png" width="45%" />
+    <p width="3%" />
 </p>
+
 
 # Talk
 
