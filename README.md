@@ -1,5 +1,4 @@
-# Talk
-
+<style>
 .row {
     display: flex;
 }
@@ -8,6 +7,7 @@
     flex: 33.33%;
     padding: 5px;
 }
+</style>
 
 <div class="row">
     <div class="column">
@@ -19,6 +19,7 @@
 </div>
 
 
+# Talk
 
 *Used as a final project for CS3520 @ NU*
 
