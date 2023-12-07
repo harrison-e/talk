@@ -1,5 +1,5 @@
 # Talk
-[](!"img.jpg")
+[](!"screen_linux_1.jpg")
 
 *Used as a final project for CS3520 @ NU*
 
