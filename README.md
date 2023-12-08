@@ -41,14 +41,19 @@ Finally, run the executable `talk`:
 
 ## How to Use
 
-Talk has a set of commands, that allow the user to perform various functions of the Tox API. The user's current input can be seen at the bottom of the screen, after the `>` marker.
+Talk has a set of [commands](#Commands), that allow the user to perform various functions of the Tox API. The user's current input can be seen at the bottom of the screen, after the `>` marker.
 
 To get started, users should first make note of their Tox ID, which is displayed on startup, in yellow. 
 Users can change their name with [`setname`](#setname) to change their username from the default `anon`.
+
 This can be used with the [`add`](#add) command by a different user to send a friend request. 
+
 After a one user `add`s another, the other user can see the request with [`requests`](#requests) and accept it with [`accept <request-id>`](#accept), replacing `<request-id>` with the appropriate ID shown in `requests`.
 
-The functionality and usage of all commands is noted below:
+Finally, after both users see that their new friend is online, they can begin a conversation with [`talk`](#talk).
+
+
+## Commands
 
 ### start
 
